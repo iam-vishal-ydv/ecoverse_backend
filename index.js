@@ -15,6 +15,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/auth", userRoutes);
+app.use(
+  cors({
+    origin: "https://ecover-se.vercel.app/",
+    credentials: true,
+  })
+);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
