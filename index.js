@@ -17,10 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", userRoutes);
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://ecover-se.vercel.app"],
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    origin: "*",
   })
 );
 
