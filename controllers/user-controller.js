@@ -150,11 +150,7 @@ export const loginController = async (req, res) => {
 
     res.status(200).json({
       message: "Login successful",
-      user: {
-        _id: user._id,
-        username: user.username,
-        email: user.email,
-      },
+      user,
     });
   } catch (error) {
     console.error(error);
