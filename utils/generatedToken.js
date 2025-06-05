@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-const generatedToken = async (userId) => {
+const generatedToken = async (user) => {
   const token = await jwt.sign(
     { userId: user._id, role: user.role },
     process.env.JWT_SECRET,

@@ -140,7 +140,7 @@ export const loginController = async (req, res) => {
     if (!isMatch)
       return res.status(401).json({ message: "Invalid credentials" });
 
-    const token = generatedToken(user._id);
+    const token = generatedToken(user);
 
     res.cookie("token", token, {
       httpOnly: true,
