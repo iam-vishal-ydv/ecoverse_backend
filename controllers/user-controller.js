@@ -283,45 +283,6 @@ export const logoutController = (req, res) => {
   res.json({ success: true, message: "Logged out successfully" });
 };
 
-c;
-export async function updateProfile(req, res) {
-  try {
-    const file = req.file;
-    const userId = req.userId;
-
-    const upload = await uploadImageCloudinary(file);
-
-    if (!upload) {
-      res.status(400).json({
-        success: false,
-        message: " Somthing  went wrong",
-      });
-    }
-
-    const updateUser = await UserModel.findByIdAndUpdate(userId, {
-      avatar: upload.url,
-    });
-
-    await updateUser.save();
-
-    res.status(200).json({
-      success: true,
-      message: "File upload successfully",
-      data: {
-        id: userId,
-        avatar: upload.url,
-      },
-    });
-  } catch (error) {
-    console.error("Error description:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Something went wrong. Please try again.",
-      error: error.message || error,
-    });
-  }
-}
-
 export async function updateProfile(req, res) {
   try {
     const userId = req.userId;
