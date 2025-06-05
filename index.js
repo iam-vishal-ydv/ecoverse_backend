@@ -10,16 +10,18 @@ const app = express();
 
 dbConnection();
 
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "https://ecover-se.vercel.app"],
+    credentials: true,
+  })
+);
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/auth", userRoutes);
-app.use(
-  cors({
-    origin: "*",
-  })
-);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
