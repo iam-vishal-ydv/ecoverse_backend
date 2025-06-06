@@ -1,6 +1,8 @@
 import express from "express";
 import {
+  checkUsernameAvailability,
   handleEmailVerification,
+  handleGetEmail,
   handleResetPassword,
   loginController,
   logoutController,
@@ -14,9 +16,12 @@ const userRoutes = express.Router();
 
 userRoutes.post("/register", registerController);
 userRoutes.post("/verify-email", handleEmailVerification);
+userRoutes.post("/re-verify-email", handleGetEmail);
 userRoutes.post("/login", loginController);
 userRoutes.post("/reset-password", handleResetPassword);
 userRoutes.post("/logout", logoutController);
+userRoutes.post("/logout", logoutController);
+userRoutes.get("/check-username", checkUsernameAvailability);
 userRoutes.put(
   "/profile",
   authMiddleware,

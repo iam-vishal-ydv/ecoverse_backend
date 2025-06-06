@@ -91,6 +91,36 @@ export const handleEmailVerification = async (req, res) => {
   }
 };
 
+export const handleGetEmail = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) return res.status(400).json({ message: "Email is required" });
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (user.isVerified) {
+      return res.status(400).json({ message: "Email already verified" });
+    }
+
+    const newOtp = generateOTP();
+    user.verificationCode = newOtp;
+    user.verificationCodeExpires = Date.now() + 10 * 60 * 1000;
+    await user.save();
+
+    await sendVerificationEmail(user.email, newOtp);
+
+    return res.json({
+      message: "OTP sent successfully to your email.",
+      email,
+    });
+  } catch (error) {
+    console.error("Email Verification Error:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
 export const loginController = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -245,3 +275,25 @@ export async function updateProfile(req, res) {
     });
   }
 }
+
+export const checkUsernameAvailability = async (req, res) => {
+  try {
+    const { username } = req.query;
+
+    if (!username)
+      return res.status(400).json({ message: "Username is required" });
+
+    const userExists = await User.findOne({
+      username: username.trim().toLowerCase(),
+    });
+
+    if (userExists) {
+      return res.status(409).json({ message: "Username is already taken" });
+    }
+
+    return res.status(200).json({ message: "Username is available" });
+  } catch (error) {
+    console.error("Error checking username:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
