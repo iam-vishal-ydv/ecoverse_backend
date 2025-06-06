@@ -80,15 +80,15 @@ export const registerController = async (req, res) => {
 
 export const verifyOtpController = async (req, res) => {
   try {
-    const { userId, otp } = req.body;
+    const { email, otp } = req.body;
 
-    if (!userId || !otp) {
+    if (!email || !otp) {
       return res
         .status(400)
         .json({ success: false, message: "All fields are required" });
     }
 
-    const user = await User.findById(userId);
+    const user = await User.findById(email);
     if (!user) {
       return res
         .status(404)
