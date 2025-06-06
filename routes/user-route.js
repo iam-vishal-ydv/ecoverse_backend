@@ -22,7 +22,7 @@ userRoutes.post("/forgot-password", forgotPasswordController);
 userRoutes.post("/verify-reset-otp", restPasswordOtp);
 userRoutes.post("/change-password", resetPasswordController);
 userRoutes.post("/logout", logoutController);
-userRoutes.post("/re-send-otp", resendOtp);
+userRoutes.post("/check-verify-email", resendOtp);
 userRoutes.put(
   "/profile",
   authMiddleware,

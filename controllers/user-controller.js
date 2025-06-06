@@ -299,7 +299,7 @@ export const resendOtp = async (req, res) => {
 
   const otp = generateOTP();
   user.otp = otp;
-  user.otpExpires = Date.now() + 10 * 60 * 1000; // 10 min
+  user.otpExpires = Date.now() + 10 * 60 * 1000;
   await user.save();
 
   await sendOtpToEmail(email, otp);
