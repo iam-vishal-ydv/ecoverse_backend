@@ -134,7 +134,13 @@ export const loginController = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
 
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json("User not found");
+    if (!user) return res.status(400).json({ message: "User not found" });
+
+    if (!user.isVerified) {
+      return res
+        .status(401)
+        .json({ message: "Please verify your email before logging in." });
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
@@ -277,6 +283,28 @@ export const resetPasswordController = async (req, res) => {
 export const logoutController = (req, res) => {
   res.clearCookie("token");
   res.json({ success: true, message: "Logged out successfully" });
+};
+
+export const resendOtp = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) return res.status(400).json({ message: "Email required" });
+
+  const user = await User.findOne({ email });
+
+  if (!user) return res.status(404).json({ message: "User not found" });
+
+  if (user.isVerified)
+    return res.status(400).json({ message: "Email already verified" });
+
+  const otp = generateOTP();
+  user.otp = otp;
+  user.otpExpires = Date.now() + 10 * 60 * 1000; // 10 min
+  await user.save();
+
+  await sendOtpToEmail(email, otp);
+
+  res.status(200).json({ message: "OTP resent to your email" });
 };
 
 export async function updateProfile(req, res) {
