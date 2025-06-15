@@ -4,6 +4,8 @@ import dbConnection from "./db/db.js";
 import userRoutes from "./routes/user-route.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import mediaRoutes from "./routes/midea-routes.js";
+import categoriesRoutes from "./routes/categories-route.js";
 
 dotenv.config();
 const app = express();
@@ -32,6 +34,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/auth", userRoutes);
+app.use("/api", mediaRoutes);
+app.use("/api/categories", categoriesRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

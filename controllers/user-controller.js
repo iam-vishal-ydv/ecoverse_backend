@@ -10,6 +10,8 @@ import {
 } from "../utils/emailService.js";
 import bcrypt from "bcryptjs";
 
+import uploadImageCloudinary from "../utils/uplaodImageCloudinary.js";
+
 export const registerController = async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -131,13 +133,14 @@ export const loginController = async (req, res) => {
     if (!(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
-    const token = generatedToken(user);
+    const token = await generatedToken(user);
+
     res.cookie("token", token, {
       httpOnly: true,
       sameSite: "strict",
       maxAge: 7 * 24 * 3600 * 1000,
     });
-    return res.json({ message: "Login successful", user });
+    return res.json({ message: "Login successful", user, token });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Server error" });
@@ -191,11 +194,23 @@ export const logoutController = (req, res) => {
 
 export async function updateProfile(req, res) {
   try {
-    const userId = req.userId;
-    const { username, bio } = req.body;
+    const userId = req.user._id;
+    const {
+      bio,
+      location,
+      instagram,
+      youtube,
+      website,
+      rank,
+      totalViews,
+      followers,
+      following,
+    } = req.body;
+
+    let profileImageUrl = req.user.profileImage;
     const file = req.file;
 
-    const user = await UserModel.findById(userId);
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -205,8 +220,10 @@ export async function updateProfile(req, res) {
 
     const updateData = {};
 
+    // console.log(file, "file");
     if (file) {
       const upload = await uploadImageCloudinary(file);
+      // console.log(upload, "upload");
       if (!upload) {
         return res.status(400).json({
           success: false,
@@ -216,20 +233,15 @@ export async function updateProfile(req, res) {
       updateData.profileImage = upload.url;
     }
 
-    if (username && username !== user.username) {
-      const existingUser = await UserModel.findOne({ username });
-      if (existingUser && existingUser._id.toString() !== userId) {
-        return res.status(400).json({
-          success: false,
-          message: "Username already taken",
-        });
-      }
-      updateData.username = username;
-    }
-
-    if (bio !== undefined) {
-      updateData.bio = bio;
-    }
+    if (bio !== undefined) updateData.bio = bio;
+    if (location !== undefined) updateData.location = location;
+    if (instagram !== undefined) updateData.instagram = instagram;
+    if (youtube !== undefined) updateData.youtube = youtube;
+    if (website !== undefined) updateData.website = website;
+    if (rank !== undefined) updateData.rank = rank;
+    if (totalViews !== undefined) updateData.totalViews = totalViews;
+    if (followers !== undefined) updateData.followers = followers;
+    if (following !== undefined) updateData.following = following;
 
     if (Object.keys(updateData).length === 0) {
       return res.status(400).json({
@@ -238,7 +250,7 @@ export async function updateProfile(req, res) {
       });
     }
 
-    const updatedUser = await UserModel.findByIdAndUpdate(userId, updateData, {
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
       new: true,
       runValidators: true,
     }).select(
@@ -268,6 +280,37 @@ export async function updateProfile(req, res) {
       });
     }
 
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+}
+
+export async function getUserController(req, res) {
+  try {
+    const userId = req.user._id;
+    console.log;
+
+    const user = await User.findById(userId).select(
+      "-password -resetPasswordCode -resetPasswordExpires -verificationCode -verificationCodeExpires"
+    );
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "User fetched successfully",
+      user,
+    });
+  } catch (error) {
+    console.error("Error fetching user:", error);
     res.status(500).json({
       success: false,
       message: "Internal server error",

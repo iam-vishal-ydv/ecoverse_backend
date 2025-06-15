@@ -26,6 +26,42 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    location: {
+      type: String,
+      default: "",
+    },
+    instagram: {
+      type: String,
+      default: "",
+    },
+    youtube: {
+      type: String,
+      default: "",
+    },
+    website: {
+      type: String,
+      default: "",
+    },
+    rank: {
+      type: Number,
+      default: 0,
+    },
+    totalViews: {
+      type: Number,
+      default: 0,
+    },
+    followers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    following: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     uploadedImages: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -50,7 +86,6 @@ const userSchema = new mongoose.Schema(
       default: "user",
     },
     isVerified: { type: Boolean, default: false },
-
     resetPasswordCode: String,
     resetPasswordExpires: Date,
     verificationCode: String,

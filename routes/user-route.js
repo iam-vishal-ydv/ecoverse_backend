@@ -1,6 +1,7 @@
 import express from "express";
 import {
   checkUsernameAvailability,
+  getUserController,
   handleEmailVerification,
   handleGetEmail,
   handleResetPassword,
@@ -25,8 +26,10 @@ userRoutes.get("/check-username", checkUsernameAvailability);
 userRoutes.put(
   "/profile",
   authMiddleware,
-  upload.single("avatar"),
+  upload.single("profileImage"),
   updateProfile
 );
+
+userRoutes.get("/user", authMiddleware, getUserController);
 
 export default userRoutes;
