@@ -17,5 +17,3 @@ mediaRoutes.post(
 mediaRoutes.get("/get-all", getAllUploadImage);
 
 export default mediaRoutes;
-
-console.log("tst");
