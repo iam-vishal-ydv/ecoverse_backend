@@ -2,6 +2,7 @@ import express from "express";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import {
   getAllUploadImage,
+  getMyImages,
   uploadImage,
 } from "../controllers/fileUpload-controller.js";
 import upload from "../middlewares/multer.js";
@@ -14,6 +15,7 @@ mediaRoutes.post(
   upload.single("imageUrl"),
   uploadImage
 );
-mediaRoutes.get("/get-all", getAllUploadImage);
+mediaRoutes.get("/get-all-upload", getAllUploadImage);
+mediaRoutes.get("/my-upload", authMiddleware, getMyImages);
 
 export default mediaRoutes;

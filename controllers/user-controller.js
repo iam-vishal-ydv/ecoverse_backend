@@ -126,6 +126,7 @@ export const handleGetEmail = async (req, res) => {
 export const loginController = async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log(email);
     const user = await User.findOne({ email: email?.toLowerCase() });
     if (!user) return res.status(404).json({ message: "User not found" });
     if (!user.isVerified)

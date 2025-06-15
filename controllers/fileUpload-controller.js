@@ -1,9 +1,10 @@
 import ImageModel from "../models/uploadImage-model.js";
+import uploadImageCloudinary from "../utils/uplaodImageCloudinary.js";
 
 export async function uploadImage(req, res) {
   try {
-    const userId = req.userId;
-    const { title, description, category } = req.body;
+    const userId = req.user._id;
+    const { title, description, category, uploadedBy } = req.body;
     const file = req.file;
 
     if (!file) {
@@ -60,3 +61,22 @@ export async function getAllUploadImage(req, res) {
     });
   }
 }
+
+export const getMyImages = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const images = await ImageModel.find({ uploadedBy: userId });
+
+    res.status(200).json({
+      success: true,
+      data: images,
+    });
+  } catch (error) {
+    console.error("Failed to fetch user's images:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+};
