@@ -20,7 +20,7 @@ app.use(
         "https://ecover-se.vercel.app",
       ];
       if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, origin);
+        callback(null, true);
       } else {
         callback(new Error("Not allowed by CORS"));
       }
