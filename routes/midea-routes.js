@@ -2,7 +2,11 @@ import express from "express";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import {
   getAllUploadImage,
+  getImage,
+  getImagesByCategory,
   getMyImages,
+  toggleLikeImage,
+  toggleSaveImage,
   uploadImage,
 } from "../controllers/fileUpload-controller.js";
 import upload from "../middlewares/multer.js";
@@ -17,5 +21,9 @@ mediaRoutes.post(
 );
 mediaRoutes.get("/get-all-upload", getAllUploadImage);
 mediaRoutes.get("/my-upload", authMiddleware, getMyImages);
+mediaRoutes.get("/image/:id", getImage);
+mediaRoutes.get("/images/category/:categoryId", getImagesByCategory);
+mediaRoutes.put("/like/:id", authMiddleware, toggleLikeImage);
+mediaRoutes.put("/save/:id", authMiddleware, toggleSaveImage);
 
 export default mediaRoutes;

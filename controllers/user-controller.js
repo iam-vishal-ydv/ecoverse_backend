@@ -292,7 +292,6 @@ export async function updateProfile(req, res) {
 export async function getUserController(req, res) {
   try {
     const userId = req.user._id;
-    console.log;
 
     const user = await User.findById(userId).select(
       "-password -resetPasswordCode -resetPasswordExpires -verificationCode -verificationCodeExpires"
