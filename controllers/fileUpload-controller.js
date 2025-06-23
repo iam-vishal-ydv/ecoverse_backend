@@ -89,7 +89,9 @@ export const getImage = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const image = await ImageModel.findById(id).populate("category");
+    const image = await ImageModel.findById(id)
+      .populate("category")
+      .populate("uploadedBy");
 
     res.status(200).json({
       success: true,
