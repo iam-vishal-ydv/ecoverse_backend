@@ -90,6 +90,8 @@ const userSchema = new mongoose.Schema(
     resetPasswordExpires: Date,
     verificationCode: String,
     verificationCodeExpires: Date,
+    following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   },
   {
     timestamps: true,

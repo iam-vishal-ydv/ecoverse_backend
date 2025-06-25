@@ -208,3 +208,72 @@ export const getMySaved = async (req, res) => {
     });
   }
 };
+
+export const search = async (req, res) => {
+  try {
+    const { query } = req.body;
+
+    if (!query || query.trim() === "") {
+      return res.status(400).json({
+        success: false,
+        message: "Search query is required",
+      });
+    }
+
+    const results = await ImageModel.aggregate([
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "categoryDetails",
+        },
+      },
+      {
+        $match: {
+          $or: [
+            { title: { $regex: query, $options: "i" } },
+            { "categoryDetails.name": { $regex: query, $options: "i" } },
+          ],
+        },
+      },
+      {
+        $project: {
+          title: 1,
+          description: 1,
+          imageUrl: 1,
+          height: 1,
+          width: 1,
+          size: 1,
+          uploadedBy: 1,
+          likes: 1,
+          saved: 1,
+          categories: "$categoryDetails.name",
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      },
+    ]);
+
+    if (results.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: "No matching images found",
+        data: [],
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      count: results.length,
+      data: results,
+    });
+  } catch (error) {
+    console.error("Search error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};

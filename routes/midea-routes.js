@@ -5,6 +5,7 @@ import {
   getImage,
   getImagesByCategory,
   getMyImages,
+  search,
   toggleLikeImage,
   toggleSaveImage,
   uploadImage,
@@ -25,5 +26,6 @@ mediaRoutes.get("/image/:id", getImage);
 mediaRoutes.get("/images/category/:categoryId", getImagesByCategory);
 mediaRoutes.put("/like/:id", authMiddleware, toggleLikeImage);
 mediaRoutes.put("/save/:id", authMiddleware, toggleSaveImage);
+mediaRoutes.post("/search", search);
 
 export default mediaRoutes;
