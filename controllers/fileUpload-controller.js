@@ -211,13 +211,23 @@ export const getMySaved = async (req, res) => {
 
 export const search = async (req, res) => {
   try {
-   const { query } = req.body;
-   console.log(query)
-    if (!query || query.trim() === "") {
-      return res.status(400).json({
-        success: false,
-        message: "Search query is required",
+
+    const query = typeof req.body.query === "string" ? req.body.query.trim() : "";
+    const category = typeof req.body.category === "string" ? req.body.category.trim() : "";
+
+    const matchConditions = [];
+
+    if (query) {
+      matchConditions.push({
+        $or: [
+          { title: { $regex: query, $options: "i" } },
+          { "categoryDetails.name": { $regex: query, $options: "i" } },
+        ],
       });
+    }
+
+    if (category) {
+      matchConditions.push({ "categoryDetails.name": category });
     }
 
     const results = await ImageModel.aggregate([
@@ -230,13 +240,13 @@ export const search = async (req, res) => {
         },
       },
       {
-        $match: {
-          $or: [
-            { title: { $regex: query, $options: "i" } },
-            { "categoryDetails.name": { $regex: query, $options: "i" } },
-          ],
-        },
+        $match: matchConditions.length > 0 ? { $and: matchConditions } : {},
       },
+      {
+    $sort: {
+      createdAt: -1,
+    },
+  },
       {
         $project: {
           title: 1,
@@ -255,17 +265,13 @@ export const search = async (req, res) => {
       },
     ]);
 
-    if (results.length === 0) {
-      return res.status(200).json({
-        success: true,
-        message: "No matching images found",
-        data: [],
-      });
-    }
-
     res.status(200).json({
       success: true,
       count: results.length,
+      message:
+        results.length === 0
+          ? "No matching images found"
+          : "Images fetched successfully",
       data: results,
     });
   } catch (error) {
@@ -277,3 +283,4 @@ export const search = async (req, res) => {
     });
   }
 };
+
