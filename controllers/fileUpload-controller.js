@@ -211,8 +211,8 @@ export const getMySaved = async (req, res) => {
 
 export const search = async (req, res) => {
   try {
-    const { query } = req.body;
-
+   const { query } = req.body;
+   console.log(query)
     if (!query || query.trim() === "") {
       return res.status(400).json({
         success: false,
