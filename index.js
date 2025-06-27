@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import mediaRoutes from "./routes/midea-routes.js";
 import categoriesRoutes from "./routes/categories-route.js";
+import userFollowRouter from "./routes/follower-routes.js";
 
 dotenv.config();
 const app = express();
@@ -36,6 +37,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", userRoutes);
 app.use("/api", mediaRoutes);
 app.use("/api/categories", categoriesRoutes);
+app.use('/user',userFollowRouter)
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

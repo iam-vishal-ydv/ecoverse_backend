@@ -21,7 +21,7 @@ mediaRoutes.post(
   uploadImage
 );
 mediaRoutes.get("/get-all-upload", getAllUploadImage);
-mediaRoutes.get("/my-upload", authMiddleware, getMyImages);
+mediaRoutes.get("/my-upload/:id", authMiddleware, getMyImages);
 mediaRoutes.get("/image/:id", getImage);
 mediaRoutes.get("/images/category/:categoryId", getImagesByCategory);
 mediaRoutes.put("/like/:id", authMiddleware, toggleLikeImage);

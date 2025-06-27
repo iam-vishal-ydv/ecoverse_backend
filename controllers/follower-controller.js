@@ -1,15 +1,16 @@
-import User from "../models/user-model";
+import User from "../models/user-model.js";
 
 export const followUser = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { userId } = req.params;
     const currentUserId = req.user._id;
+    console.log(userId)
 
     if (id === currentUserId) {
       return res.status(400).json({ message: "You cannot follow yourself" });
     }
 
-    const userToFollow = await User.findById(id);
+    const userToFollow = await User.findById(userId);
     const currentUser = await User.findById(currentUserId);
 
     if (!userToFollow || !currentUser) {

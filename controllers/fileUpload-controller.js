@@ -69,8 +69,8 @@ export async function getAllUploadImage(req, res) {
 
 export const getMyImages = async (req, res) => {
   try {
-    const userId = req.user._id;
-    const images = await ImageModel.find({ uploadedBy: userId });
+    const {id} =  req.params
+    const images = await ImageModel.find({ uploadedBy: id });
 
     res.status(200).json({
       success: true,

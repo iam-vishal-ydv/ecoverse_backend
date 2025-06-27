@@ -11,6 +11,8 @@ import {
 import bcrypt from "bcryptjs";
 
 import uploadImageCloudinary from "../utils/uplaodImageCloudinary.js";
+import userModel from "../models/user-model.js";
+import { use } from "react";
 
 export const registerController = async (req, res) => {
   try {
@@ -126,15 +128,29 @@ export const handleGetEmail = async (req, res) => {
 export const loginController = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log(email);
+
+    console.time("Total Login Time");
+
+    console.time("DB Lookup");
     const user = await User.findOne({ email: email?.toLowerCase() });
+    console.timeEnd("DB Lookup");
+
     if (!user) return res.status(404).json({ message: "User not found" });
+
     if (!user.isVerified)
       return res.status(401).json({ message: "Please verify email first" });
-    if (!(await bcrypt.compare(password, user.password))) {
+
+    console.time("Password Compare");
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    console.timeEnd("Password Compare");
+
+    if (!passwordMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
-    const token = await generatedToken(user);
+
+    console.time("Token Generation");
+    const token = await generatedToken(user); // custom token logic?
+    console.timeEnd("Token Generation");
 
     res.cookie("token", token, {
       httpOnly: true,
@@ -143,12 +159,15 @@ export const loginController = async (req, res) => {
       maxAge: 2 * 24 * 60 * 60 * 1000,
     });
 
+    console.timeEnd("Total Login Time");
+
     return res.json({ message: "Login successful", user, token });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Server error" });
   }
 };
+
 
 export const handleResetPassword = async (req, res) => {
   try {
@@ -340,5 +359,36 @@ export const checkUsernameAvailability = async (req, res) => {
   } catch (error) {
     console.error("Error checking username:", error);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+
+export const getUserByIdController = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+
+    const user = await userModel.findById(id).select(
+      "-password -resetPasswordCode -resetPasswordExpires -verificationCode -verificationCodeExpires"
+    );
+    ;
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
