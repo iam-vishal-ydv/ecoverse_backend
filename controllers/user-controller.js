@@ -183,7 +183,7 @@ export const handleResetPassword = async (req, res) => {
       user.resetPasswordCode = code;
       user.resetPasswordExpires = Date.now() + 600_000;
       await user.save();
-      await sendPasswordResetEmail(user.email, verifyTemplate(username, email, "reset", otp));
+      await sendPasswordResetEmail(user.email, verifyTemplate(user.username, email, "reset", otp));
       return res.json({ message: "Reset OTP sent" });
     }
 
