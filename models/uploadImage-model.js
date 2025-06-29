@@ -43,6 +43,18 @@ const imageSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    views: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    download: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   { timestamps: true }
 );
