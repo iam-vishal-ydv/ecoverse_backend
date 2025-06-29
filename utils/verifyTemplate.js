@@ -11,8 +11,8 @@ function verifyTemplate(name, email, id, otp) {
           <p style="margin: 0; font-size: 12px; color: #777;">(Valid for 10 minutes)</p>
         </div>
 
-        <p style="font-size: 15px;">Alternatively, you can click the button below to verify your email:</p>
-        <a href="https://ecover-se.vercel.app/email-verify-otp" 
+        <p style="font-size: 15px;">Or click below to verify your email:</p>
+        <a href="https://ecover-se.vercel.app/email-verify-otp?id=${id}" 
            style="display: inline-block; padding: 12px 25px; background-color: #00c853; color: white; 
                   text-decoration: none; border-radius: 5px; font-weight: bold; margin: 10px 0;">
            Verify Email
@@ -26,5 +26,3 @@ function verifyTemplate(name, email, id, otp) {
     </div>
   `;
 }
-
-export default verifyTemplate;
