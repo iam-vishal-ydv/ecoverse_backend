@@ -12,7 +12,7 @@ function verifyTemplate(name, email, id, otp) {
         </div>
 
         <p style="font-size: 15px;">Alternatively, you can click the button below to verify your email:</p>
-        <a href="http://localhost:3000/verify-email?code=${encodeURIComponent(id)}" 
+        <a href="https://ecover-se.vercel.app/email-verify-otp" 
            style="display: inline-block; padding: 12px 25px; background-color: #00c853; color: white; 
                   text-decoration: none; border-radius: 5px; font-weight: bold; margin: 10px 0;">
            Verify Email
