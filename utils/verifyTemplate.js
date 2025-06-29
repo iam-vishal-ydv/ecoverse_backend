@@ -22,3 +22,5 @@ function verifyTemplate(name, email, otpType, otp) {
     </div>
   `;
 }
+
+export default verifyTemplate
