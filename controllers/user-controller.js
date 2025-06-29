@@ -12,7 +12,7 @@ import bcrypt from "bcryptjs";
 
 import uploadImageCloudinary from "../utils/uplaodImageCloudinary.js";
 import userModel from "../models/user-model.js";
-import { use } from "react";
+
 
 export const registerController = async (req, res) => {
   try {
@@ -27,6 +27,9 @@ export const registerController = async (req, res) => {
     }
     if (await User.findOne({ email })) {
       return res.status(409).json({ message: "Email already registered" });
+    }
+    if (await User.findOne({ username })) {
+      return res.status(409).json({ message: "Username already taken" });
     }
     const hashed = await bcrypt.hash(password, 10);
     const otp = generateOTP(),
