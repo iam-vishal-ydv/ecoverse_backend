@@ -28,7 +28,7 @@ export const sendVerificationEmail = async (email, html) => {
 };
 
 export const sendPasswordResetEmail = async (email, html) => {
-  console.log(html)
+
   const mailOptions = {
     from: process.env.EMAIL_FROM,
     to: email,
