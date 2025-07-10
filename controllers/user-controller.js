@@ -132,37 +132,35 @@ export const loginController = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    console.time("Total Login Time");
 
-    console.time("DB Lookup");
     const user = await User.findOne({ email: email?.toLowerCase() });
-    console.timeEnd("DB Lookup");
+
 
     if (!user) return res.status(404).json({ message: "User not found" });
 
     if (!user.isVerified)
       return res.status(401).json({ message: "Please verify email first" });
 
-    console.time("Password Compare");
+
     const passwordMatch = await bcrypt.compare(password, user.password);
-    console.timeEnd("Password Compare");
+
 
     if (!passwordMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    console.time("Token Generation");
-    const token = await generatedToken(user); // custom token logic?
-    console.timeEnd("Token Generation");
+
+    const token = await generatedToken(user);
+
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
       maxAge: 2 * 24 * 60 * 60 * 1000,
+
     });
 
-    console.timeEnd("Total Login Time");
 
     return res.json({ message: "Login successful", user, token });
   } catch (err) {
