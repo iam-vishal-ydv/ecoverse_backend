@@ -31,7 +31,7 @@ userRoutes.put(
   updateProfile
 );
 
-userRoutes.get("/user/:id",getUserByIdController)
+userRoutes.get("/user/:id", getUserByIdController);
 userRoutes.get("/user", authMiddleware, getUserController);
 
 export default userRoutes;

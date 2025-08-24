@@ -13,7 +13,6 @@ import bcrypt from "bcryptjs";
 import uploadImageCloudinary from "../utils/uplaodImageCloudinary.js";
 import userModel from "../models/user-model.js";
 
-
 export const registerController = async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -132,35 +131,27 @@ export const loginController = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-
     const user = await User.findOne({ email: email?.toLowerCase() });
-
 
     if (!user) return res.status(404).json({ message: "User not found" });
 
     if (!user.isVerified)
       return res.status(401).json({ message: "Please verify email first" });
 
-
     const passwordMatch = await bcrypt.compare(password, user.password);
-
 
     if (!passwordMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-
     const token = await generatedToken(user);
-
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 2 * 24 * 60 * 60 * 1000,
-
     });
-
 
     return res.json({ message: "Login successful", user, token });
   } catch (err) {
@@ -168,7 +159,6 @@ export const loginController = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
-
 
 export const handleResetPassword = async (req, res) => {
   try {
@@ -181,7 +171,10 @@ export const handleResetPassword = async (req, res) => {
       user.resetPasswordCode = code;
       user.resetPasswordExpires = Date.now() + 600_000;
       await user.save();
-      await sendPasswordResetEmail(user.email, verifyTemplate(user.username, email, "reset", code));
+      await sendPasswordResetEmail(
+        user.email,
+        verifyTemplate(user.username, email, "reset", code)
+      );
       return res.json({ message: "Reset OTP sent" });
     }
 
@@ -211,10 +204,13 @@ export const handleResetPassword = async (req, res) => {
 };
 
 export const logoutController = (req, res) => {
-  res.clearCookie("token");
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  });
   res.json({ success: true, message: "Logged out successfully" });
 };
-
 export async function updateProfile(req, res) {
   try {
     const userId = req.user._id;
@@ -363,18 +359,15 @@ export const checkUsernameAvailability = async (req, res) => {
   }
 };
 
-
-
 export const getUserByIdController = async (req, res) => {
   try {
     const { id } = req.params;
 
-
-    const user = await userModel.findById(id).select(
-      "-password -resetPasswordCode -resetPasswordExpires -verificationCode -verificationCodeExpires"
-    );
-    ;
-
+    const user = await userModel
+      .findById(id)
+      .select(
+        "-password -resetPasswordCode -resetPasswordExpires -verificationCode -verificationCodeExpires"
+      );
     if (!user) {
       return res.status(404).json({
         success: false,
