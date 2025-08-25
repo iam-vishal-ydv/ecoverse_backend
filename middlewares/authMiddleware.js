@@ -4,12 +4,13 @@ import User from "../models/user-model.js";
 export const authMiddleware = async (req, res, next) => {
   try {
     let token = req?.cookies?.token;
-
+    let tokenSource = "cookie";
 
     if (!token && req.headers.authorization) {
       const authHeader = req.headers.authorization;
-      if (authHeader.startsWith('Bearer ')) {
+      if (authHeader.startsWith("Bearer ")) {
         token = authHeader.substring(7);
+        tokenSource = "header";
       }
     }
 
@@ -22,13 +23,20 @@ export const authMiddleware = async (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-
-    const user = await User.findById(decoded.userId).select('-password');
+    const user = await User.findById(decoded.userId).select("-password");
 
     if (!user) {
-      return res.clearCookie('token').status(401).json({
+      if (tokenSource === "cookie") {
+        res.clearCookie("token", {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        });
+      }
+
+      return res.status(401).json({
         success: false,
-        message: "Invalid token. User not found."
+        message: "Invalid token. User not found.",
       });
     }
 
@@ -37,24 +45,24 @@ export const authMiddleware = async (req, res, next) => {
   } catch (error) {
     console.error("Auth Middleware Error:", error.message);
 
-
-    if (error.name === 'TokenExpiredError') {
+    if (error.name === "TokenExpiredError") {
       return res.status(401).json({
         success: false,
-        message: "Session expired. Please login again."
+        message: "Session expired. Please login again.",
+        expired: true,
       });
     }
 
-    if (error.name === 'JsonWebTokenError') {
+    if (error.name === "JsonWebTokenError") {
       return res.status(401).json({
         success: false,
-        message: "Invalid token."
+        message: "Invalid token.",
       });
     }
 
     res.status(401).json({
       success: false,
-      message: "Unauthorized access"
+      message: "Unauthorized access",
     });
   }
 };

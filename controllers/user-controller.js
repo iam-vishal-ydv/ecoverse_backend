@@ -146,20 +146,27 @@ export const loginController = async (req, res) => {
 
     const token = await generatedToken(user);
 
+    // Set cookie (for desktop browsers)
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 2 * 24 * 60 * 60 * 1000,
+      partitioned: true, // For mobile browsers
     });
 
-    return res.json({ message: "Login successful", user, token });
+    // IMPORTANT: Also send token in response for mobile browsers
+    return res.json({
+      message: "Login successful",
+      user,
+      token, // Mobile will use this instead of cookie
+      success: true,
+    });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Server error" });
   }
 };
-
 export const handleResetPassword = async (req, res) => {
   try {
     const { email, action, otp, newPassword } = req.body;
