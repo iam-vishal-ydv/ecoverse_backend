@@ -1,4 +1,5 @@
 import ImageModel from "../models/uploadImage-model.js";
+import userModel from "../models/user-model.js";
 import uploadImageCloudinary from "../utils/uplaodImageCloudinary.js";
 
 export async function uploadImage(req, res) {
@@ -6,13 +7,11 @@ export async function uploadImage(req, res) {
     const userId = req.user._id;
     const { title, description, category } = req.body;
     const file = req.file;
-
     if (!file) {
       return res
         .status(400)
         .json({ success: false, message: "No file uploaded" });
     }
-
     const uploaded = await uploadImageCloudinary(file);
     if (!uploaded?.url) {
       return res
@@ -48,14 +47,25 @@ export async function uploadImage(req, res) {
 
 export async function getAllUploadImage(req, res) {
   try {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const total = await ImageModel.countDocuments();
     const images = await ImageModel.find()
       .populate("uploadedBy", "username profileImage")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
 
     res.status(200).json({
       success: true,
       message: "All images fetched successfully",
       data: images,
+      pagination: {
+        currentPage: page,
+        pageSize: limit,
+        totalPages: Math.ceil(total / limit),
+        totalItems: total,
+      },
     });
   } catch (error) {
     console.error("Error fetching images:", error);
@@ -69,7 +79,7 @@ export async function getAllUploadImage(req, res) {
 
 export const getMyImages = async (req, res) => {
   try {
-    const {id} =  req.params
+    const { id } = req.params;
     const images = await ImageModel.find({ uploadedBy: id });
 
     res.status(200).json({
@@ -163,22 +173,26 @@ export const toggleSaveImage = async (req, res) => {
     const imageId = req.params.id;
 
     const image = await ImageModel.findById(imageId);
+    const user = await userModel.findById(userId);
 
     if (!image) {
       return res
         .status(404)
         .json({ success: false, message: "Image not found" });
     }
-
     const isSaved = image.saved.includes(userId);
+    const isSavedInUser = user.favorites.includes(imageId);
 
-    if (isSaved) {
+    if (isSaved && isSavedInUser) {
       image.saved.pull(userId);
+      user.favorites.pull(imageId);
     } else {
       image.saved.push(userId);
+      user.favorites.push(imageId);
     }
 
     await image.save();
+    await user.save();
 
     res.status(200).json({
       success: true,
@@ -211,9 +225,10 @@ export const getMySaved = async (req, res) => {
 
 export const search = async (req, res) => {
   try {
-
-    const query = typeof req.body.query === "string" ? req.body.query.trim() : "";
-    const category = typeof req.body.category === "string" ? req.body.category.trim() : "";
+    const query =
+      typeof req.body.query === "string" ? req.body.query.trim() : "";
+    const category =
+      typeof req.body.category === "string" ? req.body.category.trim() : "";
 
     const matchConditions = [];
 
@@ -243,10 +258,10 @@ export const search = async (req, res) => {
         $match: matchConditions.length > 0 ? { $and: matchConditions } : {},
       },
       {
-    $sort: {
-      createdAt: -1,
-    },
-  },
+        $sort: {
+          createdAt: -1,
+        },
+      },
       {
         $project: {
           title: 1,
@@ -283,4 +298,3 @@ export const search = async (req, res) => {
     });
   }
 };
-

@@ -9,6 +9,7 @@ import {
   loginController,
   logoutController,
   registerController,
+  savedCollections,
   updateProfile,
 } from "../controllers/user-controller.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
@@ -33,5 +34,6 @@ userRoutes.put(
 
 userRoutes.get("/user/:id", getUserByIdController);
 userRoutes.get("/user", authMiddleware, getUserController);
+userRoutes.get("/saved", authMiddleware, savedCollections);
 
 export default userRoutes;

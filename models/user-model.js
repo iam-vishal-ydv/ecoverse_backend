@@ -65,19 +65,19 @@ const userSchema = new mongoose.Schema(
     uploadedImages: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Image",
+        ref: "FileUpload",
       },
     ],
     favorites: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Image",
+        ref: "FileUpload",
       },
     ],
     likedImages: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Image",
+        ref: "FileUpload",
       },
     ],
     role: {

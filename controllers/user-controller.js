@@ -12,6 +12,8 @@ import bcrypt from "bcryptjs";
 
 import uploadImageCloudinary from "../utils/uplaodImageCloudinary.js";
 import userModel from "../models/user-model.js";
+import mongoose from "mongoose";
+import imageModel from "../models/uploadImage-model.js";
 
 export const registerController = async (req, res) => {
   try {
@@ -146,20 +148,17 @@ export const loginController = async (req, res) => {
 
     const token = await generatedToken(user);
 
-    // Set cookie (for desktop browsers)
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 2 * 24 * 60 * 60 * 1000,
-      partitioned: true, // For mobile browsers
     });
 
-    // IMPORTANT: Also send token in response for mobile browsers
     return res.json({
       message: "Login successful",
       user,
-      token, // Mobile will use this instead of cookie
+      token,
       success: true,
     });
   } catch (err) {
@@ -386,6 +385,22 @@ export const getUserByIdController = async (req, res) => {
       success: true,
       user,
     });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const savedCollections = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const collection = await imageModel.aggregate([
+      { $match: { saved: userId } },
+      { $project: { imageUrl: 1, uploadedBy: 1, title: 1 } },
+    ]);
+    res.send(collection);
   } catch (error) {
     res.status(500).json({
       success: false,
